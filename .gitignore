@@ -45,3 +45,10 @@ data/
 datasets/
 *.zip
 *.tar.gz
+
+# Environment files — never commit real secrets
+.env
+.env.local
+
+# Docker / process pids
+*.pid

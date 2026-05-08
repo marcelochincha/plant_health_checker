@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - private
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    image: leaf-auth:latest
+    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES}
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - private
+      - public
+
+  classifier:
+    build:
+      context: .
+      dockerfile: services/classifier/Dockerfile
+    image: leaf-classifier:latest
+    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      ARTIFACTS_DIR: /app/artifacts
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./services/classifier/artifacts:/app/artifacts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - private
+      - public
+
+  training:
+    build:
+      context: .
+      dockerfile: services/training/Dockerfile
+    image: leaf-training:latest
+    env_file: .env
+    profiles: ["training"]
+    volumes:
+      - ./services/classifier/artifacts:/app/training/services/classifier/artifacts
+      - ${DATASET_PATH:-./datasets/PlantVillage}:/datasets/PlantVillage:ro
+    networks:
+      - private
+
+volumes:
+  postgres-data:
+
+networks:
+  public:
+  private:

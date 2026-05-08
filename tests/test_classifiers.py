@@ -3,9 +3,14 @@
 import numpy as np
 import pytest
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
 from classifiers import train_and_evaluate
 
+@pytest.fixture(autouse=True)
+def close_figures():
+    yield
+    plt.close("all")
 
 @pytest.fixture
 def binary_data():
