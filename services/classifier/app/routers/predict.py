@@ -8,6 +8,7 @@ from fastapi import Depends
 from fastapi import File
 from fastapi import HTTPException
 from fastapi import UploadFile
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db import get_db
@@ -51,3 +52,17 @@ def predict(
     db.commit()
     db.refresh(pred)
     return pred
+
+
+@router.get("/predictions", response_model=list[PredictionOut])
+def list_predictions(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    db: Annotated[Session, Depends(get_db)],
+) -> list[Prediction]:
+    """Return the authenticated user's predictions, newest first."""
+    rows = db.scalars(
+        select(Prediction)
+        .where(Prediction.user_id == user_id)
+        .order_by(Prediction.created_at.desc())
+    )
+    return list(rows)
