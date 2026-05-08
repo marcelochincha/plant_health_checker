@@ -8,6 +8,7 @@ reachable, so contributors without a local Postgres are not blocked.
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -23,10 +24,18 @@ _DEFAULT_TEST_URL = (
 )
 
 
+_TEST_URL = os.environ.get("DATABASE_URL_TEST", _DEFAULT_TEST_URL)
+os.environ["DATABASE_URL"] = _TEST_URL
+
+_repo_root = Path(__file__).resolve().parents[3]
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+
+
 @pytest.fixture(scope="session")
 def database_url() -> str:
     """Resolve the test database URL from env, falling back to local Postgres."""
-    return os.environ.get("DATABASE_URL_TEST", _DEFAULT_TEST_URL)
+    return _TEST_URL
 
 
 @pytest.fixture(scope="session")
@@ -56,11 +65,3 @@ def db_session(_engine) -> Iterator[Session]:
         Base.metadata.drop_all(_engine)
 
 
-@pytest.fixture(autouse=True, scope="session")
-def _ensure_repo_root_on_path() -> None:
-    """Make `from services.auth.app...` importable regardless of cwd."""
-    import sys
-
-    root = Path(__file__).resolve().parents[3]
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
