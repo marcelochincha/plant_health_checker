@@ -40,6 +40,17 @@ Leaf Health Classifier — backend that classifies images of leaves as `healthy`
 Python 3.11, FastAPI, SQLAlchemy 2.x, Postgres 16, OpenCV, scikit-image,
 scikit-learn, Docker, docker-compose.
 
+## Scripts
+
+Bash automation lives under `scripts/`. Run from the repo root.
+
+| Script | Purpose |
+| --- | --- |
+| `scripts/clone.sh [dest]` | Clone the repo into `dest` (defaults to `plant_health_checker`) and check out `develop`. Override the URL with `REPO_URL=...`. |
+| `scripts/test.sh` | Provision a local `.venv`, install root + per-service requirements, run the full `pytest` suite. Set `SKIP_INTEGRATION=1` to skip endpoint tests that need a live Postgres. |
+| `scripts/run-local.sh [up\|down\|logs]` | Bring the docker-compose stack up (default), tear it down, or follow logs. Auto-creates `.env` from `.env.example` on first run. |
+| `scripts/train.sh` | Run the training container against `DATASET_PATH`. Optional `SAMPLE_FRACTION` (defaults to `0.3`). |
+
 ## Workflow
 
 This project follows GitFlow with Conventional Commits. Feature branches are
