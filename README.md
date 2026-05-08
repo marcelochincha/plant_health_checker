@@ -44,6 +44,7 @@ Leaf Health Classifier — backend that classifies images of leaves as `healthy`
 
 ```bash
 cp .env.example .env
+# crear env
 docker compose up --build         # postgres + auth + classifier
 # in another terminal, train the model:
 docker compose run --rm training python train.py --dataset /datasets/PlantVillage
@@ -51,13 +52,12 @@ docker compose run --rm training python train.py --dataset /datasets/PlantVillag
 
 ## How to run the tests
 
-See [`.todo/TESTING.md`](.todo/TESTING.md) for a fresh-machine walkthrough.
-TL;DR:
+Linux/MacOS:
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt && pip install pytest
-pytest -v
+pip install -r requirements.txt
+./scripts/test.sh
 ```
 
 ## Repository layout
