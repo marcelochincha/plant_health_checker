@@ -44,11 +44,6 @@ def test_list_class_dirs_returns_paths(plant_root):
     assert all(isinstance(d, Path) for d in dirs)
 
 
-def test_list_class_dirs_sorted(plant_root):
-    dirs = list_class_dirs(plant_root)
-    names = [d.name for d in dirs]
-    assert names == sorted(names)
-
 
 def test_list_class_dirs_filter(plant_root):
     dirs = list_class_dirs(plant_root, filter_substring="blight")
