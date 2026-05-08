@@ -18,7 +18,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "services"]
-pythonpath = ["."]
+pythonpath = [".", "services"]
 
 [tool.setuptools]
 py-modules = ["pipeline", "features", "processing", "dataset", "classifiers"]
