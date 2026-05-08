@@ -88,6 +88,25 @@ Bash automation lives under `scripts/`. Run from the repo root.
 | `scripts/run-local.sh [up\|down\|logs]` | Bring the docker-compose stack up (default), tear it down, or follow logs. Auto-creates `.env` from `.env.example` on first run. |
 | `scripts/train.sh` | Run the training container against `DATASET_PATH`. Optional `SAMPLE_FRACTION` (defaults to `0.3`). |
 
+## Kubernetes (future)
+
+Manifest skeletons live under [`infra/k8s/`](infra/k8s/README.md) — a
+namespace, a Postgres Deployment + Service, and a Deployment + Service per
+microservice. They are not part of the milestone delivery, but
+`kubectl apply --dry-run=client -f infra/k8s/` validates the full set so
+the architecture stays portable.
+
+## Continuous Integration
+
+GitHub Actions runs on every push and pull request to `develop` and `main`
+(see [`.github/workflows/ci.yml`](.github/workflows/ci.yml)):
+
+1. `unit-tests`: provisions Postgres 16, installs root + per-service
+   requirements, runs the full `pytest` suite with `DATABASE_URL_TEST`
+   wired to the service container.
+2. `docker-build` (depends on `unit-tests`): builds all three images to
+   catch Dockerfile regressions before merge.
+
 ## Workflow
 
 This project follows GitFlow with Conventional Commits. Feature branches are
